@@ -1,9 +1,9 @@
-// ==== Config ====
-const VENUE_ID = 4437;        // <-- change if needed
+// === Config ===
+const VENUE_ID = 4437;
 const LOCALE   = 'ro';
 const DIRECT_URL = `https://ialoc.ro/?venueId=${VENUE_ID}&bookNow=true&locale=${LOCALE}`;
 
-// ---- Official iAloC loader (unchanged) ----
+// === Official iAloC embed loader ===
 !function(e,t,i,n,s,o,c,a,d,r){
   if(!e[n]){
     for(;a<c.length;)s(o,c[a++]);
@@ -16,42 +16,45 @@ const DIRECT_URL = `https://ialoc.ro/?venueId=${VENUE_ID}&bookNow=true&locale=${
   e[t]=function(){e._q.push([t,arguments])}
 },{_q:[]},"init show hide".split(" "),0);
 
-// ---- Make a ready-promise so clicks wait until widget is loaded ----
-let _ialocInited = false;
-function initOnce() {
-  if (_ialocInited) return;
-  _ialocInited = true;
+// === Initialize widget safely ===
+function initWidget() {
   try {
     ialocEmbedWidget.init({
       source: 'ialoc-widget-embed',
       locale: LOCALE,
       embedMode: 'popup'
     });
-  } catch (e) { /* ignore; we retry after the script is fully ready */ }
+  } catch (e) {
+    console.warn("Widget init failed (will retry)", e);
+  }
 }
 
+// Wait for the iAloC script to be ready
 window.ialocReady = new Promise((resolve) => {
   (function waitForIt(){
     if (window.ialocEmbedWidget && typeof ialocEmbedWidget.show === 'function') {
-      initOnce();
+      initWidget();
       resolve(true);
     } else {
-      setTimeout(waitForIt, 150);
+      setTimeout(waitForIt, 200);
     }
   })();
 });
 
-// Expose an opener used by the click handler
-window.openIaloc = function openIaloc() {
-  try {
-    initOnce();
-    if (window.ialocEmbedWidget && typeof ialocEmbedWidget.show === 'function') {
-      ialocEmbedWidget.show({ venueId: VENUE_ID, bookNow: true, locale: LOCALE });
-      return true; // popup opened
-    }
-  } catch (e) {}
-  return false; // not ready
-};
+// === Button click handler ===
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('bookBtn');
+  if (!btn) return;
 
-// Also export the fallback URL for convenience
-window.IALOC_DIRECT_URL = DIRECT_URL;
+  btn.addEventListener('click', async function (e) {
+    e.preventDefault(); // stop default navigation first
+    await window.ialocReady;
+
+    try {
+      ialocEmbedWidget.show({ venueId: VENUE_ID, bookNow: true, locale: LOCALE });
+    } catch (err) {
+      console.warn("Widget show failed → redirecting", err);
+      window.open(DIRECT_URL, "_blank");
+    }
+  });
+});
