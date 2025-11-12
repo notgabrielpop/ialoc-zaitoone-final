@@ -3,13 +3,42 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rezervă masa</title>
+  <title>Rezervă masa | iAloC</title>
+
   <style>
-    html,body{height:100%;margin:0;background:#111;color:#eee;font:16px/1.5 system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial}
-    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center}
-    .card{background:#1e1e1e;padding:28px 24px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.45);text-align:center}
-    .cta{display:inline-block;margin-top:14px;padding:12px 20px;border-radius:12px;background:#00c26f;color:#002016;text-decoration:none;font-weight:700}
-    .muted{opacity:.7}
+    html,body{
+      height:100%;
+      margin:0;
+      background:#111;
+      color:#eee;
+      font:16px/1.5 system-ui,-apple-system,Segoe UI,Inter,Roboto,Arial;
+    }
+    .wrap{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .card{
+      background:#1e1e1e;
+      padding:28px 24px;
+      border-radius:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,.45);
+      text-align:center;
+      max-width:400px;
+    }
+    h1{margin:0 0 8px 0;}
+    .cta{
+      display:inline-block;
+      margin-top:16px;
+      padding:12px 20px;
+      border-radius:12px;
+      background:#00c26f;
+      color:#002016;
+      text-decoration:none;
+      font-weight:700;
+    }
+    .muted{opacity:.7;}
   </style>
 </head>
 <body>
@@ -17,30 +46,15 @@
     <div class="card">
       <h1>Rezervă masa</h1>
       <p class="muted">Apasă pe buton pentru a deschide widgetul iAloC.</p>
-
-      <!-- REAL fallback URL (absolute). If JS fails, link still works. -->
       <a id="bookBtn" class="cta"
-         href="https://ialoc.ro/?venueId=4437&bookNow=true&locale=ro">
+         href="https://ialoc.ro/?venueId=4437&bookNow=true&locale=ro"
+         target="_blank" rel="noopener">
         Rezervă acum
       </a>
     </div>
   </div>
 
-  <!-- Load your helper + official loader inside it -->
+  <!-- Load your JS logic -->
   <script src="./ialoc-widget.js"></script>
-  <script>
-    // Use a click handler (user gesture → browsers allow popup/overlay)
-    document.getElementById('bookBtn').addEventListener('click', async function (e) {
-      try {
-        await window.ialocReady;            // wait for script to be ready
-        const opened = window.openIaloc();  // try popup
-        if (opened) e.preventDefault();     // prevent navigation if popup showed
-        else this.href = window.IALOC_DIRECT_URL; // ensure absolute fallback
-      } catch {
-        // As a last resort, go to the absolute booking URL
-        this.href = window.IALOC_DIRECT_URL;
-      }
-    });
-  </script>
 </body>
 </html>
